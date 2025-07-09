@@ -155,7 +155,7 @@ Even minimal call history or console logs could dramatically reduce dev frustrat
 ## Final Takeaways  
 
 1. **Understand your protocol**—SSE is special; treat it like streaming, not static JSON  
-2. **Validate ID types**—Python MCP is spec‑correct, but connector consumers may expect strings  
+2. **Validate ID types**—Python MCP is technically spec‑correct, but connector consumers may expect strings instead of just integers (On fix list) 
 3. **Use community and docs**—MCP design rationale and Power Platform behaviour are key context  
 4. **Push for better tooling**—Microsoft, your design‑time experience for connectors needs a revolution  
 
