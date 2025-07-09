@@ -176,7 +176,7 @@ Huge thanks to **CU24061549-1** and **FW‑24061242‑0** for their early insigh
 ---
 
 **About Chris Burns**  
-IT Consultant from the UK specialising in Power Platform, AI integration, and robust connector development.
+Technical Architect and AI Automation Design Agency Owner (Kaizenova/Nasstar) from the UK specialising in Power Platform & Copilot Studio, Azure and AI integration.
 
 ---
 
