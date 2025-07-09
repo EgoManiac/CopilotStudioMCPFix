@@ -74,6 +74,9 @@ These limitations meant we were effectively flying blind, guessing at transforma
 Here’s the key snippit of code for the custom connector code that finally works - for full code, look at the script file:
 
 ```csharp
+ //// Shortened - Ensure you use full script file attached
+
+//......
 
  HttpResponseMessage response = await this.Context.SendAsync(this.Context.Request, this.CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
 
