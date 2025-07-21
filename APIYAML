@@ -1,0 +1,26 @@
+swagger: '2.0'
+info:
+  title: EGoManiac MCP
+  description: MCP Test Specification, YAML for streamable MCP support in Copilot Studio
+  version: 1.0.0
+host: XXXXX.ngrok-free.app
+basePath: /
+schemes:
+  - https
+consumes: []
+produces: []
+paths:
+  /mcp/:
+    post:
+      summary: Ego MCP
+      x-ms-agentic-protocol: mcp-streamable-1.0
+      operationId: InvokeMCP
+      responses:
+        '200':
+          description: Success
+definitions: {}
+parameters: {}
+responses: {}
+securityDefinitions: {}
+security: []
+tags: []
