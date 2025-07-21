@@ -5,15 +5,18 @@
 
 ---
 
-## Introduction: MCP – The USB‑C of AI Integrations  
+## Introduction: The Big Picture: MCP – Like USB‑C, But for AI
 
-The **Model Context Protocol (MCP)** has become the de‑facto standard for connecting Large Language Models to external tools and data—Anthropic even likens it to the **“USB‑C port for AI”**. From Python‑written MCP servers to IDE‑integrated clients in Claude or Copilot Studio, MCP enables a streamlined, cross‑platform architecture: LLMs speak JSON‑RPC 2.0, and MCP servers expose tools, prompts, and resources via **stdio** or **Server‑Sent Events (SSE)**.
+MCP (Model Context Protocol) is fast becoming the standard way to plug large language models into external tools and services. Think of it like USB‑C for AI—same plug, works anywhere. Whether you’re using Claude, Copilot Studio, or rolling your own Python server, MCP gives you a structured, JSON-RPC 2.0‑based way to expose functions, prompts, and resources to LLMs.
 
-Python is the flagship MCP server ecosystem—easy to set up, well‑supported, and widely adopted. But when we integrated a Python MCP server via SSE into a Power Automate custom connector for Copilot Studio, things didn’t go smoothly.
+Python is the go-to for MCP servers: easy to get going, reasonably well documented, and actively maintained. So, when we needed to connect a Python MCP server via SSE into a Power Automate custom connector, we assumed it’d be straightforward.
 
+Spoiler: it wasn’t.
 ---
 
-## The Real‑World Problem: ID Field Changing Type Mid‑Stream  
+## The Gotcha: When Your ID Changes Type Mid‑Flight 
+
+We hit a subtle but infuriating issue.
 
 Our Power Automate flow expected the `id` field in the MCP response as a **string**, to comply with our connector’s OpenAPI schema. However, a Python MCP server, by default, emits:
 
@@ -40,30 +43,32 @@ Our initial naïve implementation simply parsed the response as JSON via `JObjec
 - SSE responses use line‑based streaming—`event:` and `data:` lines—not pure JSON  
 - You must manually parse out `data:`, transform the JSON, and rebuild with correct headers  
 
-Despite demos using SSE in MCP docs, we learned the hard way that Power Automate custom connectors cannot parse SSE out‑of‑the‑box.
+And although Microsoft’s own docs show SSE examples with MCP, Power Automate connectors can’t handle them out of the box. No error. No warning. Just silent failure.
 
 ---
 
 ## Community Wisdom: What Helped Us  
 
-The Power Platform Community thread (ID `7ec056e9-f950-f011-877a-7c1e5247028a`) was invaluable. Contributors like **wobbdobbs** and **abm** emphasised:
+The Power Platform Community was invaluable. Contributors emphasised:
 
 - Power Automate enforces strict content‑type/schema validation  
 - SSE must be handled line‑by‑line  
 - Python MCP server IDs are "currently" numeric, but MS clients expect string IDs as a return - The MCP spec does not clearly state that "type" should be the same.   
 
-A GitHub MCP issue (#961) confirms this is a known incompatibility: Python MCP emits integer IDs, conflicting with Copilot Studio expectations.
+A GitHub MCP issue (#[961](https://github.com/modelcontextprotocol/python-sdk/issues/961)) confirms this is a known incompatibility: Python MCP emits integer IDs, conflicting with Copilot Studio expectations.
 
 ---
 
 ## Power Automate’s Scripting Black Box  
 
+Now, let’s talk tooling.
+
 Digging into this revealed another major friction – **debugging is non‑existent**. The custom connector’s code editor:
 
-- **Does not support step‑through debugging**  
-- **Logs do not surface within SSE pipelines**  
-- **Compilation errors are vague**, e.g. `$"...”` string interpolation silently fails  
-- You have **no visibility into request/response history**  
+- Does not support step‑through debugging  
+- Logs do not surface within SSE pipelines
+- Compilation errors are vague, e.g. `$"...”` string interpolation silently fails  
+- You have no visibility into request/response history  
 
 These limitations meant we were effectively flying blind, guessing at transformations and hoping they aligned with schema rules. A simple console or call‑history viewer could have saved us hours.
 
@@ -136,28 +141,29 @@ Here’s the key snippit of code for the custom connector code that finally work
 **Why it works:**
 1. Extracts only the SSE JSON payload  
 2. Converts `id` to string  
-3. Rebuilds compliant SSE output  
-4. Correctly sets `text/event-stream` Content-Type  
+3. Rebuilds compliant output  
 
 ---
 
 ## What’s Still Missing? Better Tooling, Microsoft!  
 
-- **Line‑by‑line SSE logging** inside the connector  
-- **Built‑in request/response inspector**  
-- **Better compile‑time feedback** (e.g. catching `$` syntax errors early)  
-- **Support for breakpoints** or output windows  
+If Microsoft want developers to build richer connectors, they need to invest in the basics:
 
-Even minimal call history or console logs could dramatically reduce dev frustration and errors.
+- SSE support that just works
+- A proper debug console (even read-only logs would do)
+- Compile-time error visibility
+- Call history to see what’s going on under the hood
+
+Right now, we’re flying blind.
 
 ---
 
 ## Final Takeaways  
 
-1. **Understand your protocol**—SSE is special; treat it like streaming, not static JSON  
-2. **Validate ID types**—Python MCP is technically spec‑correct, but connector consumers may expect strings instead of just integers (On fix list) 
-3. **Use community and docs**—MCP design rationale and Power Platform behaviour are key context  
-4. **Push for better tooling**—Microsoft, your design‑time experience for connectors needs a revolution  
+1. SSE is special; treat it like streaming, not static JSON  
+2. Python MCP is technically spec‑correct, but connector consumers may expect strings instead of just integers (On fix list) 
+3. Community matters. Without the forum and GitHub threads, we’d still be guessing.
+4. Microsoft: sort your tools out. This could be a brilliant platform—if we could just see what it’s doing.
 
 ---
 
