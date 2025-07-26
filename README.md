@@ -5,6 +5,8 @@
 
 ---
 
+**EDIT:** This has now been fixed in version 1.12.2 of the Python MCP protocol. I'll leave this here for archive and a reminder to myself how to use the code feature in custom connectors
+
 ## Introduction: The Big Picture: MCP – Like USB‑C, But for AI
 
 MCP (Model Context Protocol) is fast becoming the standard way to plug large language models into external tools and services. Think of it like USB‑C for AI—same plug, works anywhere. Whether you’re using Claude, Copilot Studio, or rolling your own Python server, MCP gives you a structured, JSON-RPC 2.0‑based way to expose functions, prompts, and resources to LLMs.
